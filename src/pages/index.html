@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Postavi anonimno pitanje!</title>
+</head>
+<body>
+	<img src="iskon.gif" alt="Opis slike">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+			display: block;
+            margin: 50px;
+        }
+	    img {
+            width: 120px; /* Širina slike */
+            height: auto; /* Automatski prilagođava visinu prema širini */
+        }
+
+        h1 {
+            font-family: 'Arial', serif;
+            color: #232322;
+        }
+
+        p {
+            font-family: 'Arial', sans-serif;
+            color: #E93009;
+        }
+
+        .highlight {
+            background-color: #ffff99;
+        }
+
+        .custom-font {
+            font-family: 'Courier New', Courier, monospace;
+            color: #ff5733;
+        }
+		 table {
+            width: 90%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 18px;
+            text-align: left;
+			font-family: 'Arial', sans-serif;
+        }
+		textarea {
+			resize: none;
+			font-size: 18px;
+            text-align: left;
+			font-family: 'Arial', sans-serif;
+		}
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #E9550C;
+			font-family: 'Arial', sans-serif;
+        }
+
+        th {
+            background-color: #FF9F70;
+            color: white;
+			font-family: 'Arial', sans-serif;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #ddd;
+        }
+
+        caption {
+            caption-side: top;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+		
+    </style>
+    <h1>Anonimni unos pitanja</h1>
+    <form id="textForm">
+        <label for="userText">Unesite pitanje:</label><br><br>
+        <textarea id="userText" name="userText" rows="5" cols="150" required></textarea>
+		<br><br>
+	    <label for="user">Upiši ime, ako želiš:</label><br><br>
+		<input id="user" value=""/>
+		<br><br><br><br>
+        <button type="submit">Pošalji</button>
+    </form>
+    <script>
+        document.getElementById('textForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            var userText = document.getElementById('userText').value;
+			var korisnik = document.getElementById('user').value;
+            fetch('https://script.google.com/macros/s/AKfycby6rt9dnfmhmHvd-mzryAbbbVlMz0HcJ-quDYmZR4swFpT-WDGMbEs2r2fPiMECgk0J/exec', {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ text: userText, user: korisnik })
+            })
+            .then(response => {
+		    document.getElementById('userText').value = '';
+			document.getElementById('user').value = '';
+                    alert('Tekst je uspješno poslan!');       
+				    fetchData();					
+            })
+            .catch(error => {
+                alert('Došlo je do pogreške. Pokušajte ponovno.');
+            });
+        });
+    </script>
+	
+	<h1>Postavljena pitanja i odgovori</h1>
+    <table id="data-table" border="1">
+        <thead>
+            <tr id="header-row"></tr>
+        </thead>
+        <tbody id="data-body"></tbody>
+    </table>
+    <script>
+        async function fetchData() {
+            const url = 'https://script.google.com/macros/s/AKfycby6rt9dnfmhmHvd-mzryAbbbVlMz0HcJ-quDYmZR4swFpT-WDGMbEs2r2fPiMECgk0J/exec'; // Zamijeni s URL-om vašeg Google Apps Script-a
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                displayData(data);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        function displayData(data) {
+            const headerRow = document.getElementById('header-row');
+            const dataBody = document.getElementById('data-body');
+            
+            // Clear existing rows
+            headerRow.innerHTML = '';
+            dataBody.innerHTML = '';
+
+            // Create header row
+            const headers = data[0];
+            headers.forEach(header => {
+                const th = document.createElement('th');
+                th.textContent = header;
+                headerRow.appendChild(th);
+            });
+
+            // Create data rows
+            for (let i = 1; i < data.length; i++) {
+                const row = document.createElement('tr');
+                data[i].forEach(cell => {
+                    const td = document.createElement('td');
+                    td.textContent = cell;
+                    row.appendChild(td);
+                });
+                dataBody.appendChild(row);
+            }
+        }
+
+        fetchData();
+    </script>
+	
+</body>
+</html>
